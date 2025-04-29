@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { Menu, MicrophoneIcon, Bell, SunMoon, Home, User, Book, X } from 'lucide-react';
+import { Menu, Mic, Bell, SunMoon, Home, User, Book, X } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import {
@@ -104,7 +104,7 @@ const Navbar = () => {
               aria-label="Voice Input"
               className={isListening ? "bg-red-100 text-red-500 animate-pulse-soft" : ""}
             >
-              <MicrophoneIcon className="h-5 w-5" />
+              <Mic className="h-5 w-5" />
             </Button>
             
             <Button variant="ghost" size="icon" aria-label="Notifications">
@@ -185,7 +185,7 @@ const Navbar = () => {
                 className="flex items-center gap-2 py-2 text-lg font-medium hover:text-maternal-primary"
                 onClick={() => setIsMenuOpen(false)}
               >
-                <MicrophoneIcon className="h-5 w-5" />
+                <Mic className="h-5 w-5" />
                 Chat Support
               </Link>
             </nav>

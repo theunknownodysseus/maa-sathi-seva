@@ -4,6 +4,14 @@ import { Mic, MicOff, Speaker, Volume2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from '@/components/ui/use-toast';
 
+// Add TypeScript declarations for the Speech Recognition API
+declare global {
+  interface Window {
+    SpeechRecognition: any;
+    webkitSpeechRecognition: any;
+  }
+}
+
 interface VoiceSupportProps {
   onSpeechResult?: (text: string) => void;
   onSpeechStart?: () => void;
