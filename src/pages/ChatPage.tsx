@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import PageLayout from "@/components/layout/PageLayout";
@@ -20,7 +21,7 @@ interface Message {
   id: string;
   role: "user" | "assistant";
   content: string;
-  timestamp: Date;
+  timestamp: Date | string;  // Allow both Date and string types for flexibility
 }
 
 // Mock scheme data for the chatbot to recommend
@@ -70,6 +71,33 @@ const ChatPage = () => {
   const [showVoice, setShowVoice] = useState<boolean>(false);
   const [offline, setOffline] = useState<boolean>(!navigator.onLine);
 
+  // Helper function to ensure a timestamp is a Date object
+  const ensureDate = (timestamp: Date | string): Date => {
+    if (timestamp instanceof Date) {
+      return timestamp;
+    }
+    try {
+      return new Date(timestamp);
+    } catch (e) {
+      console.error("Invalid date format:", timestamp, e);
+      return new Date(); // Fallback to current date if parsing fails
+    }
+  };
+
+  // Helper function to safely format timestamps
+  const formatTimestamp = (timestamp: Date | string): string => {
+    try {
+      const dateObj = ensureDate(timestamp);
+      return dateObj.toLocaleTimeString([], { 
+        hour: '2-digit', 
+        minute: '2-digit' 
+      });
+    } catch (error) {
+      console.error("Error formatting timestamp:", error);
+      return "Invalid time";
+    }
+  };
+
   // Initial greeting message
   useEffect(() => {
     const initialMessage: Message = {
@@ -82,12 +110,13 @@ const ChatPage = () => {
     // Check if we have stored messages in local storage
     const storedMessages = getOfflineData<Message[]>("chatMessages");
     if (storedMessages && storedMessages.length > 0) {
-      // Ensure all timestamps are converted to Date objects
-      const messagesWithDates = storedMessages.map(msg => ({
+      // Process the stored messages to ensure valid Date objects
+      const processedMessages = storedMessages.map(msg => ({
         ...msg,
-        timestamp: new Date(msg.timestamp)
+        // Ensure timestamp is a valid Date object
+        timestamp: ensureDate(msg.timestamp)
       }));
-      setMessages(messagesWithDates);
+      setMessages(processedMessages);
     } else {
       setMessages([initialMessage]);
     }
@@ -124,12 +153,8 @@ const ChatPage = () => {
     
     // Save messages to local storage for offline access
     if (messages.length > 0) {
-      // Ensure we're storing messages with proper Date objects
-      const messagesToStore = messages.map(msg => ({
-        ...msg,
-        timestamp: msg.timestamp instanceof Date ? msg.timestamp : new Date(msg.timestamp)
-      }));
-      storeOfflineData("chatMessages", messagesToStore);
+      // Store the messages as is - we'll process them when retrieving
+      storeOfflineData("chatMessages", messages);
     }
   }, [messages]);
 
@@ -173,7 +198,7 @@ const ChatPage = () => {
       id: Date.now().toString(),
       role: "user",
       content: input,
-      timestamp: new Date(), // Ensure this is always a Date object
+      timestamp: new Date(),
     };
     
     setMessages((prev) => [...prev, userMessage]);
@@ -199,7 +224,7 @@ const ChatPage = () => {
         id: (Date.now() + 1).toString(),
         role: "assistant",
         content: response,
-        timestamp: new Date(), // Ensure this is always a Date object
+        timestamp: new Date(),
       };
       
       setMessages((prev) => [...prev, assistantMessage]);
@@ -240,25 +265,6 @@ const ChatPage = () => {
         description: "Your browser doesn't support text-to-speech functionality.",
         variant: "destructive",
       });
-    }
-  };
-
-  // Helper function to safely format timestamps
-  const formatTimestamp = (timestamp: Date | string): string => {
-    try {
-      if (timestamp instanceof Date) {
-        return timestamp.toLocaleTimeString([], { 
-          hour: '2-digit', 
-          minute: '2-digit' 
-        });
-      }
-      return new Date(timestamp).toLocaleTimeString([], {
-        hour: '2-digit',
-        minute: '2-digit'
-      });
-    } catch (error) {
-      console.error("Error formatting timestamp:", error);
-      return "Invalid time";
     }
   };
 
