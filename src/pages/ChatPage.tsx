@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import PageLayout from "@/components/layout/PageLayout";
@@ -82,7 +83,12 @@ const ChatPage = () => {
     // Check if we have stored messages in local storage
     const storedMessages = getOfflineData<Message[]>("chatMessages");
     if (storedMessages && storedMessages.length > 0) {
-      setMessages(storedMessages);
+      // Ensure all timestamps are converted to Date objects
+      const messagesWithDates = storedMessages.map(msg => ({
+        ...msg,
+        timestamp: new Date(msg.timestamp)
+      }));
+      setMessages(messagesWithDates);
     } else {
       setMessages([initialMessage]);
     }
@@ -284,10 +290,16 @@ const ChatPage = () => {
                     <div className="whitespace-pre-line">{message.content}</div>
                     <div className="flex items-center justify-between mt-2">
                       <div className="text-xs opacity-70">
-                        {message.timestamp.toLocaleTimeString([], { 
-                          hour: '2-digit', 
-                          minute: '2-digit' 
-                        })}
+                        {message.timestamp instanceof Date 
+                          ? message.timestamp.toLocaleTimeString([], { 
+                              hour: '2-digit', 
+                              minute: '2-digit' 
+                            })
+                          : new Date(message.timestamp).toLocaleTimeString([], {
+                              hour: '2-digit',
+                              minute: '2-digit'
+                            })
+                        }
                       </div>
                       {message.role === "assistant" && (
                         <Button
