@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import PageLayout from "@/components/layout/PageLayout";
@@ -122,9 +121,15 @@ const ChatPage = () => {
   // Scroll to bottom when messages change
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    
     // Save messages to local storage for offline access
     if (messages.length > 0) {
-      storeOfflineData("chatMessages", messages);
+      // Ensure we're storing messages with proper Date objects
+      const messagesToStore = messages.map(msg => ({
+        ...msg,
+        timestamp: msg.timestamp instanceof Date ? msg.timestamp : new Date(msg.timestamp)
+      }));
+      storeOfflineData("chatMessages", messagesToStore);
     }
   }, [messages]);
 
@@ -168,7 +173,7 @@ const ChatPage = () => {
       id: Date.now().toString(),
       role: "user",
       content: input,
-      timestamp: new Date(),
+      timestamp: new Date(), // Ensure this is always a Date object
     };
     
     setMessages((prev) => [...prev, userMessage]);
@@ -194,7 +199,7 @@ const ChatPage = () => {
         id: (Date.now() + 1).toString(),
         role: "assistant",
         content: response,
-        timestamp: new Date(),
+        timestamp: new Date(), // Ensure this is always a Date object
       };
       
       setMessages((prev) => [...prev, assistantMessage]);
@@ -235,6 +240,25 @@ const ChatPage = () => {
         description: "Your browser doesn't support text-to-speech functionality.",
         variant: "destructive",
       });
+    }
+  };
+
+  // Helper function to safely format timestamps
+  const formatTimestamp = (timestamp: Date | string): string => {
+    try {
+      if (timestamp instanceof Date) {
+        return timestamp.toLocaleTimeString([], { 
+          hour: '2-digit', 
+          minute: '2-digit' 
+        });
+      }
+      return new Date(timestamp).toLocaleTimeString([], {
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    } catch (error) {
+      console.error("Error formatting timestamp:", error);
+      return "Invalid time";
     }
   };
 
@@ -290,16 +314,7 @@ const ChatPage = () => {
                     <div className="whitespace-pre-line">{message.content}</div>
                     <div className="flex items-center justify-between mt-2">
                       <div className="text-xs opacity-70">
-                        {message.timestamp instanceof Date 
-                          ? message.timestamp.toLocaleTimeString([], { 
-                              hour: '2-digit', 
-                              minute: '2-digit' 
-                            })
-                          : new Date(message.timestamp).toLocaleTimeString([], {
-                              hour: '2-digit',
-                              minute: '2-digit'
-                            })
-                        }
+                        {formatTimestamp(message.timestamp)}
                       </div>
                       {message.role === "assistant" && (
                         <Button
