@@ -1,0 +1,42 @@
+
+{
+  "name": "Maa Sathi Seva",
+  "short_name": "MaaSathi",
+  "description": "Maternal healthcare support system for rural and underserved populations",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#6a5acd",
+  "icons": [
+    {
+      "src": "favicon.ico",
+      "sizes": "64x64 32x32 24x24 16x16",
+      "type": "image/x-icon"
+    },
+    {
+      "src": "logo192.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "logo512.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Chat Support",
+      "short_name": "Chat",
+      "description": "Open the healthcare chatbot",
+      "url": "/chat"
+    },
+    {
+      "name": "Emergency",
+      "short_name": "Emergency",
+      "description": "Quick access to emergency contacts",
+      "url": "/emergency"
+    }
+  ],
+  "prefer_related_applications": false
+}
